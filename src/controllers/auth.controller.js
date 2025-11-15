@@ -23,7 +23,6 @@ const instituteRegister = async (req, res) => {
       [
         instituteName,
         instituteAddress,
-        instituteEmail,
         instituteContact,
         instituteType,
         adminEmail,
