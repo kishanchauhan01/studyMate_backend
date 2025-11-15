@@ -1,20 +1,20 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
+import { ApiError } from "./ApiError.js";
 
 export const sendEmail = async (to, subject, html) => {
-  // Transporter
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.EMAIL_USER,   // your gmail
-      pass: process.env.EMAIL_PASS,   // app password
-    },
-  });
+  const resend = new Resend(process.env.RESEND_KEY);
 
-  // Send email
-  return transporter.sendMail({
-    from: `"StudyMate" <${process.env.EMAIL_USER}>`,
-    to,
-    subject,
-    html,
-  });
+  try {
+    const response = await resend.emails.send({
+      from: "StudyMate <onboarding@resend.dev>",
+      to,
+      subject,
+      html,
+    });
+    console.log(response);
+    return response;
+  } catch (error) {
+    console.log(error);
+    throw new ApiError(500, "error in sending the mail");
+  }
 };
