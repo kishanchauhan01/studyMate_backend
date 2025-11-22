@@ -17,6 +17,12 @@ const adminSchema = new Schema({
     type: String,
     required: true,
   },
+
+  instituteId: {
+    type: Schema.Types.ObjectId,
+    ref: "Institute",
+    required: true,
+  },
 });
 
 adminSchema.set("autoIndex", true);
