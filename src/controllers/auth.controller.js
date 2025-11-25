@@ -8,6 +8,12 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { nanoid } from "nanoid";
 import { User } from "../models/user.model.js";
 import { Otp } from "../models/otp.model.js";
+import fs from "fs";
+import path from "path";
+
+const __dirname = path.resolve();
+const templatePath = path.join(__dirname, "src/templates", "otp_template.html");
+const template = fs.readFileSync(templatePath, "utf8");
 
 const isOtpCorrect = async (otp, otpRefId) => {
   const toBeVerifiedOtp = await Otp.findOne({ otpRefId });
@@ -44,16 +50,19 @@ const otpSender = asyncHandler(async (req, res) => {
     throw new ApiError(500, "Error while generating otp");
   }
 
+  const htmlTemplate = template
+    .replace("{{OTP}}", otp)
+    .replace("{{OTP}}", otp)
+    .replace("{{YEAR}}", new Date().getFullYear());
+
   const mail = await sendEmail(
     adminEmail,
     "StudyMate Email Verification OTP",
-    `<h2>Your OTP is: <b>${otp}</b></h2>
-       <p>This OTP is valid for 10 minutes.</p>`
+    htmlTemplate
   );
 
-  if(mail.error != null) {
-    throw new ApiError(500, "Error while sending OTP")
-    
+  if (mail.error != null) {
+    throw new ApiError(500, "Error while sending OTP");
   }
 
   return res
@@ -141,8 +150,8 @@ const instituteRegister = asyncHandler(async (req, res) => {
 });
 
 const userSignup = asyncHandler(async (req, res) => {
+  console.log("req.come");
   const { email, name, password, institueCode } = req.body;
-
   //check the fields
   if (
     [email, name, password, institueCode].some((itme) => itme.trim() === "")
@@ -150,10 +159,10 @@ const userSignup = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Fields are invalid");
   }
 
-  const institue = await Institute.findOne({ code: institueCode });
+  const institute = await Institute.findOne({ code: institueCode });
 
   //if institue not found
-  if (!institue) {
+  if (!institute) {
     throw new ApiError(400, "Institue is not found");
   }
 
@@ -162,7 +171,7 @@ const userSignup = asyncHandler(async (req, res) => {
     userName: name,
     userEmail: email,
     password: password,
-    institutionId: institue._id,
+    institutionId: institute._id,
   });
 
   const newUser = await User.findById(user._id).select("-password");
@@ -172,9 +181,22 @@ const userSignup = asyncHandler(async (req, res) => {
   }
 
   //send response
+  console.log("all done");
   return res
     .status(200)
-    .json(new ApiResponse(200, "User created successfully", newUser));
+    .json(
+      new ApiResponse(200, "User created successfully", { newUser, institute })
+    );
+});
+
+const userLogin = asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
+
+  if (email.trim() === "" || password.trim() === req.body) {
+    throw new ApiError(400, "Invalid fields")
+  }
+
+  
 });
 
 export { instituteRegister, userSignup, otpSender };
