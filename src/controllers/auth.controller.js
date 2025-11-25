@@ -151,15 +151,19 @@ const instituteRegister = asyncHandler(async (req, res) => {
 
 const userSignup = asyncHandler(async (req, res) => {
   console.log("req.come");
-  const { email, name, password, institueCode } = req.body;
+  const { email, name, password, instituteCode } = req.body;
+  console.log(req.body);
   //check the fields
   if (
-    [email, name, password, institueCode].some((itme) => itme.trim() === "")
+    [email, name, password, instituteCode].some((item) => {
+      console.log(item);
+      return !item || item.trim() === "";
+    })
   ) {
     throw new ApiError(400, "Fields are invalid");
   }
 
-  const institute = await Institute.findOne({ code: institueCode });
+  const institute = await Institute.findOne({ code: instituteCode });
 
   //if institue not found
   if (!institute) {
@@ -193,10 +197,8 @@ const userLogin = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
   if (email.trim() === "" || password.trim() === req.body) {
-    throw new ApiError(400, "Invalid fields")
+    throw new ApiError(400, "Invalid fields");
   }
-
-  
 });
 
 export { instituteRegister, userSignup, otpSender };
