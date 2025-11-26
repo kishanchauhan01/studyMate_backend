@@ -209,6 +209,12 @@ const userLogin = asyncHandler(async (req, res) => {
     throw new ApiError(400, "User not found");
   }
 
+  const isPasswordCorrect = await user.isPasswordCorrect(password);
+
+  if (!isPasswordCorrect) {
+    throw new ApiError(400, "Incorrect password");
+  }
+
   const institute = await Institute.findById(user.institutionId);
 
   //login the user
