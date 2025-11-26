@@ -231,4 +231,4 @@ const userLogin = asyncHandler(async (req, res) => {
     );
 });
 
-export { instituteRegister, userSignup, otpSender };
+export { instituteRegister, userSignup, otpSender, userLogin };
