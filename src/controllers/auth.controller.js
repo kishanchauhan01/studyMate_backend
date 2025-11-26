@@ -195,10 +195,34 @@ const userSignup = asyncHandler(async (req, res) => {
 
 const userLogin = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
+  console.log("request came");
 
+  // vlaidate the data
   if (email.trim() === "" || password.trim() === req.body) {
     throw new ApiError(400, "Invalid fields");
   }
+
+  // check for already exists
+  const user = await User.findOne({ userEmail: email }).select("-password");
+
+  if (!user) {
+    throw new ApiError(400, "User not found");
+  }
+
+  const institute = await Institute.findById(user.institutionId);
+
+  //login the user
+  // have to send user info and the institute info
+  if (!institute) {
+    throw new ApiError(400, "User is not joined any institue yet");
+  }
+
+  //send the response
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, "Usr logedIn successfully", { user, institute })
+    );
 });
 
 export { instituteRegister, userSignup, otpSender };
