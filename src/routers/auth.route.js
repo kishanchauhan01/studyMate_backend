@@ -11,6 +11,6 @@ const router = Router();
 router.route("/instituteRegister").post(instituteRegister);
 router.route("/sentOTP").post(otpSender);
 router.route("/userSignup").post(userSignup);
-router.route("userLogin").post(userLogin);
+router.route("/userLogin").post(userLogin);
 
 export default router;
